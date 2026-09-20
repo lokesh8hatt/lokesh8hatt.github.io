@@ -81,4 +81,40 @@
     );
     sections.forEach((s) => sectionIO.observe(s));
   }
+
+  // Pointer-driven flourishes (spotlight + subtle tilt on project cards,
+  // magnetic pull on buttons) - skipped on touch devices and when the
+  // user prefers reduced motion.
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (finePointer && !reducedMotion) {
+    document.querySelectorAll('.project-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mx', `${x}px`);
+        card.style.setProperty('--my', `${y}px`);
+        card.style.setProperty('--rx', `${((x / rect.width) - 0.5) * 6}deg`);
+        card.style.setProperty('--ry', `${-((y / rect.height) - 0.5) * 6}deg`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+      });
+    });
+
+    document.querySelectorAll('.btn').forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.35}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
 })();
